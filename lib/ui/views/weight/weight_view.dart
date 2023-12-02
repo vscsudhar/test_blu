@@ -32,6 +32,7 @@ class WeightView extends StackedView<WeightViewModel> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.blue.shade400,
           leading: InkWell(onTap: () => viewModel.goBack(context), child: const Icon(Icons.arrow_back)),
           title: Text(viewModel.area.toString()),
           actions: [
@@ -50,110 +51,119 @@ class WeightView extends StackedView<WeightViewModel> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              children: <Widget>[
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          viewModel.date,
-                          style: fontFamilyMedium.size30,
-                        ),
-                        horizontalSpaceLarge,
-                        Text(
-                          viewModel.session,
-                          style: fontFamilyMedium.size30,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                verticalSpacing20,
-                Focus(
-                  focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
-                  child: StreamBuilder<double>(
-                    stream: viewModel.dataStreamController.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        double? data = snapshot.data;
-                        if (data == 0.0) {
-                          viewModel.isButtonEnabled = false;
-                        }
+        body: GestureDetector(
+          onTap: viewModel.handleSpaceBar,
+          child: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            viewModel.date,
+                            style: fontFamilyMedium.size30,
+                          ),
+                          horizontalSpaceLarge,
+                          Text(
+                            viewModel.session,
+                            style: fontFamilyMedium.size30,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  verticalSpacing20,
+                  Focus(
+                    focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
+                    child: StreamBuilder<double>(
+                      stream: viewModel.dataStreamController.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          double? data = snapshot.data;
+                          if (data == 0.0) {
+                            viewModel.isButtonEnabled = false;
+                          }
 
-                        // viewModel.isButtonEnabled = (data == 0.00);
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              child: Text(
-                                viewModel.isButtonEnabled! ? data.toString() : '$data',
-                                style: const TextStyle(fontSize: 40),
-                              ),
-                            ),
-                            verticalSpacing20,
-                            if (!(viewModel.isButtonEnabled!))
-                              Form(
-                                key: formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // SizedBox(
-                                    //   height: MediaQuery.of(context).size.height * 0.3,
-                                    // ),
-                                    RawKeyboardListener(
-                                      // autofocus: true,
-                                      focusNode: viewModel.focusNode,
-                                      onKey: (RawKeyEvent event) {
-                                        if (event is RawKeyDownEvent) {
-                                          if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter) {
-                                            _submithand(viewModel);
-                                          } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-                                            viewModel.goBack(context);
-                                          }
-                                        }
-                                      },
-                                      child: TextField2(
-                                        type: TextInputType.number,
-                                        textAlign: TextAlign.center,
-                                        hintText: 'Enter Customer Code',
-                                        validator: (val) {
-                                          if (val == null || val.isEmpty) {
-                                            return 'Customer Id is required';
-                                          }
-                                          return null;
-                                        },
-                                        onSaved: (id) => viewModel.setCustomerId(id.toString()),
-                                      ),
-                                    ),
-                                    verticalSpaceMedium,
-                                    verticalSpacing20,
-                                    Button(
-                                      name: 'Submit',
-                                      onTap: () {
-                                        _submithand(viewModel);
-                                      },
-                                    ),
-                                  ],
+                          // viewModel.isButtonEnabled = (data == 0.00);
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                child: Text(
+                                  viewModel.isButtonEnabled! ? data.toString() : '$data',
+                                  style: const TextStyle(fontSize: 40),
                                 ),
                               ),
-                          ],
-                        );
-                      } else {
-                        return const Text(
-                          'Waiting for data...\n Click to connect',
-                          style: TextStyle(fontSize: 16),
-                        );
-                      }
-                    },
+                              verticalSpacing20,
+                              if (!(viewModel.isButtonEnabled!))
+                                Form(
+                                  key: formKey,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // SizedBox(
+                                      //   height: MediaQuery.of(context).size.height * 0.3,
+                                      // ),
+                                      RawKeyboardListener(
+                                        // autofocus: true,
+                                        focusNode: viewModel.focusNode,
+                                        onKey: (RawKeyEvent event) {
+                                          if (event is RawKeyDownEvent) {
+                                            if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter) {
+                                              if (!(data! <= 1.00)) {
+                                                _submithand(viewModel);
+                                              }
+                                            } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+                                              viewModel.goBack(context);
+                                            }
+                                          }
+                                        },
+                                        child: TextField2(
+                                          style: fontFamilyMedium.copyWith(fontSize: 64),
+                                          type: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          hintText: 'Enter Customer Code',
+                                          validator: (val) {
+                                            if (val == null || val.isEmpty) {
+                                              return 'Customer Id is required';
+                                            }
+                                            return null;
+                                          },
+                                          onSaved: (id) => viewModel.setCustomerId(id.toString()),
+                                        ),
+                                      ),
+                                      verticalSpaceMedium,
+                                      verticalSpacing20,
+                                      Button(
+                                        buttoncolor: Colors.green,
+                                        name: 'Submit',
+                                        onTap: () {
+                                          if (!(data! <= 1.00)) {
+                                            _submithand(viewModel);
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          );
+                        } else {
+                          return const Text(
+                            'Waiting for data...\n Click to connect',
+                            style: TextStyle(fontSize: 16),
+                          );
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

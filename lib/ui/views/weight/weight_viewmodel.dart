@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:test_blu/app/app.locator.dart';
+import 'package:test_blu/app/permission_service.dart';
 import 'package:test_blu/core/enum/dialog_type.dart';
 import 'package:test_blu/core/mixin.dart';
 import 'package:test_blu/core/model/user.model.dart';
@@ -55,6 +56,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   String get date => DateFormat('dd-MM-yyyy').format(now);
   String? get customerId => _customerId;
   String get address => _address;
+  double lastvalue = 0;
 
   String? get weightData => _weightData;
 
@@ -64,9 +66,12 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   bool? isButtonEnabled = true;
 
   final FocusNode focusNode = FocusNode();
+    final PermissionService _permissionService = locator<PermissionService>();
+
 
 // Function to toggle the Bluetooth connection state
   void toggleBluetoothConnection() async {
+    // await _permissionService.requestBlePermission();
     if (isBluetoothConnected) {
       // If already connected, disconnect
       _connection?.finish();
@@ -82,10 +87,15 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
 
           // Extract only numeric values from the data
           List<double> numericValues = extractFirstDouble(decodedData);
-          _weightData = numericValues.join(', ');
-          // Add each numeric value to the stream
-          for (double value in numericValues) {
-            _dataStreamController.add(value);
+          List<double> numericValues1 = extractFirstDouble(decodedData);
+          print('Data : $numericValues');
+
+          if (numericValues.isNotEmpty && numericValues1.length > 1 && numericValues[0] == numericValues1[1]) {
+            _weightData = numericValues.join(', ');
+            // Add each numeric value to the stream
+            for (double value in numericValues) {
+              _dataStreamController.add(value);
+            }
           }
 
           _connection?.output.add(data); // Sending data
@@ -113,13 +123,18 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   List<double> extractFirstDouble(String input) {
     RegExp regex = RegExp(r'([+-]?\d*\.?\d+)');
     List<double> numericValues = [];
+    print(numericValues.length);
 
     // Extract the numeric values from the input string
     Iterable<Match> matches = regex.allMatches(input);
     for (Match match in matches) {
       String numericString = match.group(1)!;
-      double numericValue = double.parse(numericString);
-      numericValues.add(numericValue);
+      print(numericValues.length);
+      String numericString1 = match.group(0)!;
+      if (numericString == numericString1) {
+        double numericValue = double.parse(numericString);
+        numericValues.add(numericValue);
+      }
     }
 
     return numericValues;
@@ -149,7 +164,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     isButtonEnabled = true;
     // pauseDataStream();
     notifyListeners();
-    
+
     // showErrDialog('${weightData.toString()} Liter is Recived from $customerId');
   }
 
@@ -181,8 +196,6 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     }
   }
 
- 
-
   void pauseDataStream() {
     dataStreamSubscription?.pause();
   }
@@ -197,15 +210,9 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     dataStreamSubscription?.cancel();
   }
 
-  void buton() {
-    // pauseDataStream();
-    isButtonEnabled = true;
+  void handleSpaceBar() {
     notifyListeners();
-  }
-
-  void backSpace() {
-    notifyListeners();
-    controller!.text = controller!.text.substring(0, controller!.text.length - 1);
+    focusNode.requestFocus();
   }
 }
 // init() async {

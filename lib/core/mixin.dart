@@ -5,8 +5,8 @@ import 'package:test_blu/app/app.router.dart';
 mixin NavigationMixin {
   final NavigationService _navigationService = locator<NavigationService>();
 
-  void goToHome() => _navigationService.navigateTo(Routes.homeView);
+  void goToHome() => _navigationService.clearStackAndShow(Routes.homeView);
   void goToTest() => _navigationService.navigateTo(Routes.testPageView);
   void goToDataView() => _navigationService.navigateTo(Routes.dataViewView);
-  void goToWeight() => _navigationService.navigateTo(Routes.weightView);
+  void goToWeight() => _navigationService.clearStackAndShow(Routes.weightView);
 }

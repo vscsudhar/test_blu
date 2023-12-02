@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:test_blu/app/app.locator.dart';
+import 'package:test_blu/app/permission_service.dart';
 import 'package:test_blu/core/mixin.dart';
 import 'package:stacked/stacked.dart';
 
 class HomeViewModel extends BaseViewModel with NavigationMixin {
-  HomeViewModel();
+  HomeViewModel() {
+    _permissionService.requestBlePermission();
+  }
 
   final controller = TextEditingController();
 
@@ -19,5 +23,5 @@ class HomeViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
-  // final PermissionService _permissionService = locator<PermissionService>();
+  final PermissionService _permissionService = locator<PermissionService>();
 }

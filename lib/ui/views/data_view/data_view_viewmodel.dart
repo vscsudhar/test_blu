@@ -88,6 +88,7 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
               IconButton(
                   onPressed: () {
                     var user = _userService.deleteUser(userId);
+
                     notifyListeners();
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const DataViewView()), (route) => false);
 
@@ -105,37 +106,36 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   void deleteDialog(BuildContext context) async {
     notifyListeners();
     return showDialog(
-      context: context,
-      builder: (param) => AlertDialog(
-        actions: [
-          Center(
-            child: Row(
-              children: [
-                TextButton(
-                    style: TextButton.styleFrom(foregroundColor: appwhite1, backgroundColor: Colors.red),
-                    onPressed: () {
-                      notifyListeners();
-                      var result = _userService.deleteData();
-                      notifyListeners();
-                      // goToDataView();
-                      getDateAndSessionUsers();
-                      // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const DataViewView()), (route) => false);
-                      Navigator.pop(context);
-                    },
-                    child: const Text('delete')),
-                const Spacer(),
-                TextButton(
-                    style: TextButton.styleFrom(foregroundColor: appwhite1, backgroundColor: appcolor2699FB),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('cancel'))
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("All Data Delete"),
+            content: const Text('Are you sure to want All Data Delete?'),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(
+                    Icons.cancel,
+                    color: Colors.redAccent,
+                  )),
+              IconButton(
+                  onPressed: () {
+                    var result = _userService.deleteData();
+
+                    notifyListeners();
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const DataViewView()), (route) => false);
+
+                    getDateAndSessionUsers();
+                  },
+                  icon: const Icon(
+                    Icons.done,
+                    color: appcolor2699FB,
+                  ))
+            ],
+          );
+        });
   }
 
   void deleteDatas() async {

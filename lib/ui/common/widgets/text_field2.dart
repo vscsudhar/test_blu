@@ -10,6 +10,7 @@ class TextField2 extends StatelessWidget {
     this.initialValue,
     this.hintText,
     this.focusNode,
+    this.style,
     this.controller,
     this.hintStyle,
     this.onSaved,
@@ -26,6 +27,7 @@ class TextField2 extends StatelessWidget {
   final TextAlign? textAlign;
   final TextInputType? type;
   final TextStyle? hintStyle;
+  final TextStyle? style;
   final TextEditingController? controller;
   final void Function(String?)? onSaved;
   final void Function(String?)? onChanged;
@@ -46,19 +48,21 @@ class TextField2 extends StatelessWidget {
       textAlign: textAlign ?? TextAlign.start,
       keyboardType: type ?? TextInputType.text, //username or email
       initialValue: initialValue ?? '',
-      style: fontFamilyBold.size16,
-      cursorColor: Colors.white,
+      style: style ?? fontFamilyBold.size16,
+      cursorColor: Colors.black,
       decoration: InputDecoration(
         hintText: hintText ?? '',
-        hintStyle: hintStyle,
+        hintStyle: hintStyle ?? fontFamilyMedium.size16,
         focusColor: Colors.black,
 
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(width: 1, color: Colors.black),
         ),
         border: border,
+
         // border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
       ),
+
       onSaved: onSaved,
       onChanged: onChanged,
       validator: validator,

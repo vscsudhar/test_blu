@@ -25,6 +25,8 @@ class Box extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      canRequestFocus: false,
+      focusColor: Colors.red,
       autofocus: true,
       onTap: onTap,
       child: Stack(
