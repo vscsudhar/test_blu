@@ -9,6 +9,8 @@ import 'package:test_blu/ui/views/test_page/test_page_view.dart';
 import 'package:test_blu/services/user_service.dart';
 import 'package:test_blu/ui/views/data_view/data_view_view.dart';
 import 'package:test_blu/ui/views/weight/weight_view.dart';
+import 'package:test_blu/ui/views/locatio_id/locatio_id_view.dart';
+import 'package:test_blu/ui/views/login/login_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -18,6 +20,8 @@ import 'package:test_blu/ui/views/weight/weight_view.dart';
     MaterialRoute(page: TestPageView),
     MaterialRoute(page: DataViewView),
     MaterialRoute(page: WeightView),
+    MaterialRoute(page: LocatioIdView),
+    MaterialRoute(page: LoginView),
 // @stacked-route
   ],
   dependencies: [

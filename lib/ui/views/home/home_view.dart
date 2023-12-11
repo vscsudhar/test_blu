@@ -16,74 +16,111 @@ class HomeView extends StackedView<HomeViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue.shade400,
-          title: const Text('Weight Scale App'),
-        ),
         body: RawKeyboardListener(
-          autofocus: true,
-          focusNode: viewModel.focusNode,
-          onKey: (RawKeyEvent event) {
-            if (event is RawKeyDownEvent) {
-              if (event.logicalKey == LogicalKeyboardKey.f1) {
-                viewModel.weightPage();
-              } else if (event.logicalKey == LogicalKeyboardKey.f2) {
-                viewModel.dataPage();
-              }
-            }
-          },
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: defaultPadding14,
-              child: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Box(
-                          onTap: () => viewModel.goToWeight(),
-                          boxColor: appChambray,
-                          margin: zeroPadding,
-                          padding: defaultPadding12,
-                          child: Text(
-                            'Weight',
-                            style: fontFamilyBold.size18,
-                            textAlign: TextAlign.center,
-                          ),
-                          
-                          ),
-                    ),
-                    horizontalSpacing12,
-                    Expanded(
-                      child: Box(
-                          onTap: () => viewModel.goToDataView(),
-                          boxColor: appChambray,
-                          margin: zeroPadding,
-                          padding: defaultPadding12,
-                          child: Text(
-                            'data',
-                            style: fontFamilyBold.size18,
-                            textAlign: TextAlign.center,
-                          )),
-                    ),
-                  ],
-                ),
-                verticalSpacing16,
-
-                // Box(
-                //     onTap: () => viewModel.goToTest(),
-                //     boxColor: appChambray,
-                //     margin: zeroPadding,
-                //     padding: defaultPadding12,
-                //     child: Text(
-                //       'weight1',
-                //       style: fontFamilyBold.size18,
-                //       textAlign: TextAlign.center,
-                //     )),
-              ]),
+      autofocus: true,
+      focusNode: viewModel.focusNode,
+      onKey: (RawKeyEvent event) {
+        if (event is RawKeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.f1) {
+            viewModel.weightPage();
+          } else if (event.logicalKey == LogicalKeyboardKey.f2) {
+            viewModel.dataPage();
+          } else if (event.logicalKey == LogicalKeyboardKey.f3) {
+            viewModel.export();
+          } else if (event.logicalKey == LogicalKeyboardKey.f4) {
+            viewModel.location();
+          }
+        }
+      },
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: defaultPadding14,
+          child: Column(children: [
+            verticalSpacing40,
+            Text(
+              'Weight Scale',
+              style: fontFamilyMedium.size26,
             ),
-          ),
-        ));
+            verticalSpacing12,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Box(
+                    onTap: () => viewModel.goToWeight(),
+                    boxColor: appChambray,
+                    margin: zeroPadding,
+                    padding: defaultPadding12,
+                    child: Text(
+                      'Weight',
+                      style: fontFamilyBold.size18,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                horizontalSpacing12,
+                Expanded(
+                  child: Box(
+                      onTap: () => viewModel.goToDataView(),
+                      boxColor: appChambray,
+                      margin: zeroPadding,
+                      padding: defaultPadding12,
+                      child: Text(
+                        'data',
+                        style: fontFamilyBold.size18,
+                        textAlign: TextAlign.center,
+                      )),
+                ),
+              ],
+            ),
+            verticalSpacing10,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Box(
+                    onTap: () => viewModel.goToTest(),
+                    boxColor: appChambray,
+                    margin: zeroPadding,
+                    padding: defaultPadding12,
+                    child: Text(
+                      'Export',
+                      style: fontFamilyBold.size18,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                horizontalSpacing12,
+                Expanded(
+                  child: Box(
+                      onTap: () => viewModel.goToLogin(),
+                      boxColor: appChambray,
+                      margin: zeroPadding,
+                      padding: defaultPadding12,
+                      child: Text(
+                        'Center Id',
+                        style: fontFamilyBold.size18,
+                        textAlign: TextAlign.center,
+                      )),
+                ),
+              ],
+            ),
+            verticalSpacing16,
+
+            // Box(
+            //     onTap: () => viewModel.goToTest(),
+            //     boxColor: appChambray,
+            //     margin: zeroPadding,
+            //     padding: defaultPadding12,
+            //     child: Text(
+            //       'weight1',
+            //       style: fontFamilyBold.size18,
+            //       textAlign: TextAlign.center,
+            //     )),
+          ]),
+        ),
+      ),
+    ));
   }
 
   @override

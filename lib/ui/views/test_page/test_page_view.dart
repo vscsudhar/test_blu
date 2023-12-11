@@ -1,112 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 import 'package:test_blu/ui/common/shared/styles.dart';
-import 'package:test_blu/ui/common/ui_helpers.dart';
 import 'package:test_blu/ui/common/widgets/button.dart';
-import 'package:test_blu/ui/common/widgets/text_field2.dart';
+
 import 'package:test_blu/ui/views/test_page/test_page_viewmodel.dart';
 
 class TestPageView extends StackedView<TestPageViewModel> {
   const TestPageView({Key? key}) : super(key: key);
 
   @override
-  Widget builder(BuildContext context, TestPageViewModel viewModel, Widget? child) {
+  Widget builder(
+      BuildContext context, TestPageViewModel viewModel, Widget? child) {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          viewModel.area.toString(),
+          viewModel.locationId.toString(),
           style: const TextStyle(fontSize: 22),
         ),
         centerTitle: true,
-        actions: const [
-          //  ElevatedButton(
-          //     style: ElevatedButton.styleFrom(
-          //       backgroundColor: viewModel.isBluetoothConnected ? Colors.red : Colors.green,
-          //       shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(10.0),
-          //       ),
-          //     ),
-          //     onPressed: () {
-          //       viewModel.init();
-          //     },
-          //     child: Text(viewModel.isBluetoothConnected ? 'Disconnect' : 'Connect'),
-          //   ),
-        ],
+        actions: const [],
       ),
       body: SingleChildScrollView(
-        child: Center(
           child: Column(
-            children: [
-              verticalSpacing20,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        viewModel.date,
-                        style: fontFamilyMedium.size30,
-                      ),
-                      horizontalSpaceLarge,
-                      Text(
-                        viewModel.session,
-                        style: fontFamilyMedium.size30,
-                      ),
-                    ],
+        children: [
+          const Text('data'),
+          InkWell(
+            onTap: () => viewModel.selectFromDate(context),
+            child: Container(
+              margin: const EdgeInsets.only(top: 12) +
+                  leftPadding10 +
+                  rightPadding10,
+              padding: defaultPadding12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  5,
+                ),
+                boxShadow: const <BoxShadow>[
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.4),
+                    offset: Offset(3, 3),
+                    blurRadius: 5,
                   ),
                 ],
               ),
-              verticalSpaceLarge,
-              Center(
-                child: Text(
-                  viewModel.weightData.join(),
-                  style: fontFamilyBold.copyWith(fontSize: 44),
-                ),
-              ),
-              verticalSpaceLarge,
-              verticalSpaceLarge,
-              verticalSpaceMedium,
-              Visibility(
-                visible: viewModel.isEnabled ?? false,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      verticalSpacing20,
-                      TextField2(
-                        textAlign: TextAlign.center,
-                        hintText: 'Enter Customer Code',
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return 'Customer Id is required';
-                          } else if (val.length < 5) {
-                            return 'Customer Id must be at least 5 characters long';
-                          }
-                          return null;
-                        },
-                        onSaved: (id) => viewModel.setCustomerId(id.toString()),
-                      ),
-                      verticalSpaceMedium,
-                      verticalSpacing20,
-                      Button(
-                          name: 'Submit',
-                          onTap: () {
-                            if (formKey.currentState?.validate() ?? false) {
-                              formKey.currentState?.save();
-                              viewModel.submitData();
-                              // formKey.currentState?.reset();
-                            }
-                          }),
-                    ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    DateFormat.yMMMEd().format(viewModel.pickDate),
+                    style: fontFamilyMedium.size18,
                   ),
-                ),
+                  horizontalSpacing10,
+                  const Icon(Icons.calendar_month),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+          verticalSpacing10,
+          Button(
+              name: 'Export',
+              onTap: () {
+                viewModel.submitData();
+              }),
+          viewModel.userList.isNotEmpty
+              ? ListView.builder(
+                  itemCount: viewModel.userList.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => ListTile(
+                    title: Text(viewModel.userList[index].weight.toString()),
+                    subtitle:
+                        Text(viewModel.userList[index].customerId.toString()),
+                  ),
+                )
+              : const Text('No data'),
+          Text(viewModel.csvFilePath.toString())
+        ],
+      )),
     );
   }
 

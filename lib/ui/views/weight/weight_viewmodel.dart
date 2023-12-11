@@ -30,7 +30,8 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   final _dialogService = locator<DialogService>();
   final _sharedPreference = locator<SharedPreferences>();
 
-  final StreamController<double> _dataStreamController = StreamController<double>();
+  final StreamController<double> _dataStreamController =
+      StreamController<double>();
   StreamController<double> get dataStreamController => _dataStreamController;
   StreamSubscription<double>? dataStreamSubscription;
 
@@ -39,10 +40,11 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   String? _area;
   String? _customerId;
   String? _name;
-  String? get area => _area ?? 'Malumachampatti';
   DateTime now = DateTime.now();
   final String _address = '00:22:09:01:4C:30';
   String? _weightData;
+  String? get locationId =>
+      _sharedPreference.getString('locationId') ?? 'Malumachampatti';
 
   TextInputType? keyboardType;
   // final _controller = TextEditingController();
@@ -66,8 +68,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   bool? isButtonEnabled = true;
 
   final FocusNode focusNode = FocusNode();
-    final PermissionService _permissionService = locator<PermissionService>();
-
+  final PermissionService _permissionService = locator<PermissionService>();
 
 // Function to toggle the Bluetooth connection state
   void toggleBluetoothConnection() async {
@@ -90,11 +91,14 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
           List<double> numericValues1 = extractFirstDouble(decodedData);
           print('Data : $numericValues');
 
-          if (numericValues.isNotEmpty && numericValues1.length > 1 && numericValues[0] == numericValues1[1]) {
-            _weightData = numericValues.join(', ');
+          if (numericValues.isNotEmpty &&
+              numericValues1.length > 1 &&
+              numericValues[0] == numericValues1[1]) {
+            _weightData = numericValues[0].toString();
             // Add each numeric value to the stream
             for (double value in numericValues) {
               _dataStreamController.add(value);
+              // _weightData = value.toString();
             }
           }
 
@@ -159,6 +163,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     user.session = session;
     user.customerId = customerId!;
     user.dateTime = date;
+    user.center = locationId;
     user.weight = weightData.toString();
     var result = await _userService.saveUser(user);
     isButtonEnabled = true;
@@ -174,7 +179,8 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   }
 
   void showErrDialog(String message) {
-    _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
+    _dialogService.showCustomDialog(
+        variant: DialogType.error, title: "Message", description: message);
   }
 
   void goBack(context) {

@@ -5,6 +5,7 @@ class User {
   String? session;
   String? customerId;
   String? time;
+  String? center;
 
   userMap() {
     var mapping = <String, dynamic>{};
@@ -14,6 +15,7 @@ class User {
     mapping['session'] = session!;
     mapping['customerId'] = customerId!;
     mapping['time'] = time!;
+    mapping['center'] = center!;
     return mapping;
   }
 }

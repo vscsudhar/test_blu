@@ -9,4 +9,6 @@ mixin NavigationMixin {
   void goToTest() => _navigationService.navigateTo(Routes.testPageView);
   void goToDataView() => _navigationService.navigateTo(Routes.dataViewView);
   void goToWeight() => _navigationService.clearStackAndShow(Routes.weightView);
+  void goToLocation() => _navigationService.navigateTo(Routes.locatioIdView);
+  void goToLogin() => _navigationService.navigateTo(Routes.loginView);
 }

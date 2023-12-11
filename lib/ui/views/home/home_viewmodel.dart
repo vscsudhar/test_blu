@@ -22,6 +22,14 @@ class HomeViewModel extends BaseViewModel with NavigationMixin {
     goToDataView();
     notifyListeners();
   }
+  void export() {
+    goToTest();
+    notifyListeners();
+  }
+  void location() {
+    goToLogin();
+    notifyListeners();
+  }
 
   final PermissionService _permissionService = locator<PermissionService>();
 }

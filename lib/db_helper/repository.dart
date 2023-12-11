@@ -23,6 +23,17 @@ class Repository {
     return await connection?.insert(table, data);
   }
 
+  insertUserData(table, data) async {
+    var connection = await database;
+    return await connection?.insert(table, data);
+  }
+
+  //login Check
+  checkUserData(table, userName, userPass) async {
+    var db = await database;
+    return await db?.query('user', where: "userName = ? AND password = ?", whereArgs: [userName, userPass]);
+  }
+
   // read User
 
   readData(table) async {
@@ -50,6 +61,11 @@ class Repository {
   readByDateAndSession(table, dateTime, session) async {
     var connection = await database;
     return await connection?.query(table, where: "session = '$session' AND dateTime = ?", whereArgs: [dateTime]);
+  }
+
+  readByDate(table, dateTime) async {
+    var connection = await database;
+    return await connection?.query(table, where: "dateTime = '$dateTime'");
   }
 
   exportTableToCSV(tableName) async {

@@ -1,3 +1,4 @@
+import 'package:test_blu/core/model/users_data_model.dart';
 import 'package:test_blu/db_helper/repository.dart';
 
 import '../core/model/user.model.dart';
@@ -31,7 +32,21 @@ class UserService {
     return await _repository.readByDateAndSession('users', date, session);
   }
 
+  readDate(date) async {
+    return await _repository.readByDate('users', date);
+  }
+
   exportTableToCSV() async {
     return await _repository.exportTableToCSV('users');
+  }
+
+  //Save UserData
+  saveUserData(UserData userData) async {
+    return await _repository.insertUserData('user', userData.userDataMap());
+  }
+
+//check UserData
+  checkUserData(userName, userPass) async {
+    return await _repository.checkUserData('user', userName, userPass);
   }
 }

@@ -14,7 +14,12 @@ class DatabaseConnection {
 
   Future<void> _createDatabase(Database database, int version) async {
     String sql =
-        "CREATE TABLE users (id INTEGER PRIMARY KEY, dateTime TEXT, weight TEXT, session TEXT, customerId TEXT,time TEXT)";
+        "CREATE TABLE users (id INTEGER PRIMARY KEY, dateTime TEXT, center TEXT,customerId TEXT, weight TEXT, session TEXT, time TEXT)";
     await database.execute(sql);
+
+    String sqlData =
+        "CREATE TABLE user (id INTEGER PRIMARY KEY, dateTime TEXT, userName TEXT, password TEXT)";
+    await database.execute(sqlData);
   }
-}
+  }
+ 

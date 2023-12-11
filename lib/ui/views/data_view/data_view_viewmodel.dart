@@ -22,20 +22,29 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
 
   final now = DateTime.now();
   DateTime? _fromDate;
-  DateTime get fromDate => _fromDate ?? DateTime(now.year, now.month, 1);
-  String get fDate => DateFormat('dd-MM-yyyy').format(fromDate); //DateFormat('MM-dd-yyyy').format(fromDate);
+  DateTime get fromDate =>
+      _fromDate ?? DateTime.now(); //DateTime(now.year, now.month, 1);
+  String get fDate => DateFormat('dd-MM-yyyy')
+      .format(fromDate); //DateFormat('MM-dd-yyyy').format(fromDate);
+  String get session => DateFormat('a').format(now);
+
   // String get date => DateFormat('dd-MM-yyyy').format(now);
 
   String? _selectedValue;
-  String? get selectedValue => _selectedValue ?? "AM";
+  String? get selectedValue => _selectedValue ?? session;
   String? _file;
+  String? get locationId =>
+      _sharedPreference.getString('locationId') ?? "MalumachamPatti";
 
   List<User> get userList => _userList ?? [];
 
-  List<String> get customerId => userList.map((e) => e.customerId.toString()).toSet().toList();
-  List<String> get weight => userList.map((e) => e.weight.toString()).toSet().toList();
+  List<String> get customerId =>
+      userList.map((e) => e.customerId.toString()).toSet().toList();
+  List<String> get weight =>
+      userList.map((e) => e.weight.toString()).toSet().toList();
 
   Future<void> getAllUserDetails() async {
+    _userList.clear();
     var users = await _userService.readAllUser();
     // var users = await _userService.readDateAndSession(fDate, selectedValue);
 
@@ -53,6 +62,7 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> getDateAndSessionUsers() async {
+    _userList.clear();
     var users1 = await _userService.readDateAndSession(fDate, selectedValue);
 
     users1.forEach((user) {
@@ -90,7 +100,11 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
                     var user = _userService.deleteUser(userId);
 
                     notifyListeners();
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const DataViewView()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DataViewView()),
+                        (route) => false);
 
                     getDateAndSessionUsers();
                   },
@@ -125,7 +139,11 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
                     var result = _userService.deleteData();
 
                     notifyListeners();
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const DataViewView()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DataViewView()),
+                        (route) => false);
 
                     getDateAndSessionUsers();
                   },
@@ -170,7 +188,8 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> exportTableToCSV(String filePath) async {
-    List<Map<String, dynamic>> results = await _userService.readDateAndSession(fDate, selectedValue);
+    List<Map<String, dynamic>> results =
+        await _userService.readDateAndSession(fDate, selectedValue);
 
     if (results.isNotEmpty) {
       String csv = '${results.first.keys.join(',')}\n'; // Header row

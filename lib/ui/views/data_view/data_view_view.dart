@@ -18,7 +18,7 @@ class DataViewView extends StackedView<DataViewViewModel> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue.shade400,
-        title: const Text('data'),
+        title: Text('Center-${viewModel.locationId}'),
         // leading: InkWell(
         //   onTap: () => viewModel.goToHome(),
         //   child: const Icon(Icons.arrow_back),
@@ -33,7 +33,9 @@ class DataViewView extends StackedView<DataViewViewModel> {
                     PopupMenuItem(
                       child: Row(
                         children: [
-                          InkWell(onTap: () => viewModel.export(), child: const Icon(Icons.share)),
+                          InkWell(
+                              onTap: () => viewModel.export(),
+                              child: const Icon(Icons.share)),
                           horizontalSpacing10,
                           const Text('Export'),
                         ],
@@ -65,7 +67,9 @@ class DataViewView extends StackedView<DataViewViewModel> {
                 InkWell(
                   onTap: () => viewModel.selectFromDate(context),
                   child: Container(
-                    margin: const EdgeInsets.only(top: 12) + leftPadding10 + rightPadding10,
+                    margin: const EdgeInsets.only(top: 12) +
+                        leftPadding10 +
+                        rightPadding10,
                     padding: defaultPadding12,
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -99,8 +103,10 @@ class DataViewView extends StackedView<DataViewViewModel> {
                   child: DropdownButton<String>(
                     dropdownColor: Colors.blue.shade400,
                     value: viewModel.selectedValue,
-                    onChanged: (value) => viewModel.selectSession(value.toString()),
-                    items: <String>['AM', 'PM'].map<DropdownMenuItem<String>>((String value) {
+                    onChanged: (value) =>
+                        viewModel.selectSession(value.toString()),
+                    items: <String>['AM', 'PM']
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -112,52 +118,57 @@ class DataViewView extends StackedView<DataViewViewModel> {
             ),
             verticalSpacing10,
             Button(name: 'submit', onTap: () => viewModel.submitbutton()),
+            Text('Center : ${viewModel.locationId}'),
             viewModel.userList.isNotEmpty
-                ? SingleChildScrollView(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * .55,
-                      // height: 420,
-                      child: ListView.builder(
-                        itemCount: viewModel.userList.length,
-                        shrinkWrap: true,
-                        itemBuilder: ((context, index) => Card(
-                              color: appViking,
-                              child: ListTile(
-                                leading: const Icon(Icons.person),
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      viewModel.userList[index].dateTime.toString(),
-                                      style: fontFamilyMedium.size16,
-                                    ),
-                                    verticalSpacing8,
-                                    Row(
-                                      children: [
-                                        Text(viewModel.userList[index].customerId.toString()),
-                                        const Spacer(),
-                                        Text(
-                                          viewModel.userList[index].session.toString(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                subtitle: Center(
-                                  child: Text(
-                                    viewModel.userList[index].weight.toString(),
-                                    style: fontFamilyMedium.size24,
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * .55,
+                    // height: 420,
+                    child: ListView.builder(
+                      itemCount: viewModel.userList.length,
+                      shrinkWrap: true,
+                      itemBuilder: ((context, index) => Card(
+                            color: appViking,
+                            child: ListTile(
+                              leading: const Icon(Icons.person),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Text(
+                                  //   viewModel.userList[index].dateTime.toString(),
+                                  //   style: fontFamilyMedium.size16,
+                                  // ),
+                                  verticalSpacing8,
+                                  Row(
+                                    children: [
+                                      Text(viewModel.userList[index].customerId
+                                          .toString()),
+                                      const Spacer(),
+                                      Text(
+                                        viewModel.userList[index].weight
+                                            .toString(),
+                                        style: fontFamilyMedium.size24,
+                                      ),
+                                      // Text(
+                                      //   viewModel.userList[index].session.toString(),
+                                      // ),
+                                    ],
                                   ),
-                                ),
-                                // trailing: InkWell(
-                                //     onTap: () => viewModel.deleteFromDialog(
-                                //           context,
-                                //           viewModel.userList[index].id,
-                                //         ),
-                                //     child: const Icon(Icons.delete)),
+                                ],
                               ),
-                            )),
-                      ),
+                              // subtitle: Center(
+                              //   child: Text(
+                              //     viewModel.userList[index].weight.toString(),
+                              //     style: fontFamilyMedium.size24,
+                              //   ),
+                              // ),
+                              // trailing: InkWell(
+                              //     onTap: () => viewModel.deleteFromDialog(
+                              //           context,
+                              //           viewModel.userList[index].id,
+                              //         ),
+                              //     child: const Icon(Icons.delete)),
+                            ),
+                          )),
                     ),
                   )
                 : verticalSpacing20,
