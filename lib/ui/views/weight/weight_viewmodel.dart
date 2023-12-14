@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial_ble/flutter_bluetooth_serial_ble.dart';
 import 'package:intl/intl.dart';
@@ -30,8 +31,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   final _dialogService = locator<DialogService>();
   final _sharedPreference = locator<SharedPreferences>();
 
-  final StreamController<double> _dataStreamController =
-      StreamController<double>();
+  final StreamController<double> _dataStreamController = StreamController<double>();
   StreamController<double> get dataStreamController => _dataStreamController;
   StreamSubscription<double>? dataStreamSubscription;
 
@@ -43,8 +43,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   DateTime now = DateTime.now();
   final String _address = '00:22:09:01:4C:30';
   String? _weightData;
-  String? get locationId =>
-      _sharedPreference.getString('locationId') ?? 'Malumachampatti';
+  String? get locationId => _sharedPreference.getString('locationId') ?? 'Malumachampatti';
 
   TextInputType? keyboardType;
   // final _controller = TextEditingController();
@@ -91,9 +90,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
           List<double> numericValues1 = extractFirstDouble(decodedData);
           print('Data : $numericValues');
 
-          if (numericValues.isNotEmpty &&
-              numericValues1.length > 1 &&
-              numericValues[0] == numericValues1[1]) {
+          if (numericValues.isNotEmpty && numericValues1.length > 1 && numericValues[0] == numericValues1[1]) {
             _weightData = numericValues[0].toString();
             // Add each numeric value to the stream
             for (double value in numericValues) {
@@ -179,9 +176,23 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   }
 
   void showErrDialog(String message) {
-    _dialogService.showCustomDialog(
-        variant: DialogType.error, title: "Message", description: message);
+    _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
   }
+
+  void printd() async {
+    // final profile = await CapabilityProfile.load();
+
+    // final printer = NetworkPrinter(PaperSize.mm80, profile);
+
+    // printer.text('Hello, World!', styles: const PosStyles(align: PosAlign.center, bold: true));
+
+    // // Add more content or styling as needed.
+
+    // printer.cut();
+    // printer.disconnect();
+  }
+
+// Add more content or styling as needed.
 
   void goBack(context) {
     disconnectBluetooth();

@@ -30,34 +30,43 @@ class WeightView extends StackedView<WeightViewModel> {
         viewModel.disconnectBluetooth();
         return true;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue.shade400,
-          leading: InkWell(
-              onTap: () => viewModel.goBack(context),
-              child: const Icon(Icons.arrow_back)),
-          title: Text('Center -${viewModel.locationId.toString()}'),
-          actions: [
-            ElevatedButton(
-              focusNode: FocusNode(canRequestFocus: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    viewModel.isBluetoothConnected ? Colors.red : Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+      child: Focus(
+        focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
+        onKey: (node, event) {
+          if (event.logicalKey == LogicalKeyboardKey.escape) {
+            viewModel.goBack(context);
+            return KeyEventResult.handled;
+          } else if (event.logicalKey == LogicalKeyboardKey.f2) {
+            viewModel.focusNode.requestFocus();
+            return KeyEventResult.handled;
+          } else if (event.logicalKey == LogicalKeyboardKey.f1) {
+            viewModel.toggleBluetoothConnection();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.blue.shade400,
+            leading: InkWell(onTap: () => viewModel.goBack(context), child: const Icon(Icons.arrow_back)),
+            title: Text('Center -${viewModel.locationId.toString()}'),
+            actions: [
+              ElevatedButton(
+                focusNode: FocusNode(canRequestFocus: true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: viewModel.isBluetoothConnected ? Colors.red : Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
+                onPressed: () {
+                  viewModel.toggleBluetoothConnection();
+                },
+                child: Text(viewModel.isBluetoothConnected ? 'Disconnect' : 'Connect'),
               ),
-              onPressed: () {
-                viewModel.toggleBluetoothConnection();
-              },
-              child: Text(
-                  viewModel.isBluetoothConnected ? 'Disconnect' : 'Connect'),
-            ),
-          ],
-        ),
-        body: GestureDetector(
-          onTap: viewModel.handleSpaceBar,
-          child: SingleChildScrollView(
+            ],
+          ),
+          body: SingleChildScrollView(
             child: Center(
               child: Column(
                 children: <Widget>[
@@ -82,8 +91,7 @@ class WeightView extends StackedView<WeightViewModel> {
                   ),
                   verticalSpacing20,
                   Focus(
-                    focusNode: FocusNode(
-                        canRequestFocus: true, descendantsAreFocusable: true),
+                    focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
                     child: StreamBuilder<double>(
                       stream: viewModel.dataStreamController.stream,
                       builder: (context, snapshot) {
@@ -97,21 +105,16 @@ class WeightView extends StackedView<WeightViewModel> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                child: Text(
-                                  viewModel.isButtonEnabled!
-                                      ? data.toString()
-                                      : '$data',
-                                  style: const TextStyle(fontSize: 40),
-                                ),
+                              Text(
+                                viewModel.isButtonEnabled! ? data.toString() : '$data',
+                                style: const TextStyle(fontSize: 40),
                               ),
                               verticalSpacing20,
                               if (!(viewModel.isButtonEnabled!))
                                 Form(
                                   key: formKey,
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       // SizedBox(
@@ -122,23 +125,22 @@ class WeightView extends StackedView<WeightViewModel> {
                                         focusNode: viewModel.focusNode,
                                         onKey: (RawKeyEvent event) {
                                           if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                    LogicalKeyboardKey.enter ||
-                                                event.logicalKey ==
-                                                    LogicalKeyboardKey
-                                                        .numpadEnter) {
+                                            if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter) {
                                               if (!(data! <= 1.00)) {
                                                 _submithand(viewModel);
                                               }
-                                            } else if (event.logicalKey ==
-                                                LogicalKeyboardKey.escape) {
+                                            } else if (event.logicalKey == LogicalKeyboardKey.escape) {
                                               viewModel.goBack(context);
+                                            } else if (event.logicalKey == LogicalKeyboardKey.f1) {
+                                              if (viewModel.isBluetoothConnected) {
+                                              } else {
+                                                !(viewModel.isBluetoothConnected);
+                                              }
                                             }
                                           }
                                         },
                                         child: TextField2(
-                                          style: fontFamilyMedium.copyWith(
-                                              fontSize: 64),
+                                          style: fontFamilyMedium.copyWith(fontSize: 64),
                                           type: TextInputType.number,
                                           textAlign: TextAlign.center,
                                           hintText: 'Enter Customer Code',
@@ -148,8 +150,7 @@ class WeightView extends StackedView<WeightViewModel> {
                                             }
                                             return null;
                                           },
-                                          onSaved: (id) => viewModel
-                                              .setCustomerId(id.toString()),
+                                          onSaved: (id) => viewModel.setCustomerId(id.toString()),
                                         ),
                                       ),
                                       verticalSpaceMedium,

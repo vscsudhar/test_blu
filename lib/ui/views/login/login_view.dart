@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 import 'package:test_blu/ui/common/shared/styles.dart';
 import 'package:test_blu/ui/common/ui_helpers.dart';
@@ -39,29 +40,51 @@ class LoginView extends StackedView<LoginViewModel> {
                 ),
               ),
               verticalSpacing12,
-              TextField1(
-                color: Colors.black,
-                hintText: 'User Name',
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return 'User Name is required';
+              RawKeyboardListener(
+                focusNode: FocusNode(canRequestFocus: false),
+                onKey: (RawKeyEvent event) {
+                  if (event is RawKeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.escape) {
+                      viewModel.goBack(context);
+                    }
                   }
-                  return null;
                 },
-                onSaved: (userName) => viewModel.setUserName(userName.toString()),
+                child: TextField1(
+                  color: Colors.black,
+                  hintText: 'User Name',
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'User Name is required';
+                    }
+                    return null;
+                  },
+                  onSaved: (userName) => viewModel.setUserName(userName.toString()),
+                ),
               ),
               verticalSpacing12,
-              TextField1(
-                obscureText: true,
-                color: Colors.black,
-                hintText: 'PassWord',
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return 'Password is required';
+              RawKeyboardListener(
+                focusNode: FocusNode(canRequestFocus: true),
+                onKey: (RawKeyEvent event) {
+                  if (event is RawKeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.escape) {
+                      viewModel.goBack(context);
+                    } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      viewModel.loginData();
+                    }
                   }
-                  return null;
                 },
-                onSaved: (pass) => viewModel.setUserPass(pass.toString()),
+                child: TextField1(
+                  obscureText: true,
+                  color: Colors.black,
+                  hintText: 'PassWord',
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Password is required';
+                    }
+                    return null;
+                  },
+                  onSaved: (pass) => viewModel.setUserPass(pass.toString()),
+                ),
               ),
               verticalSpacing16,
               Button(
