@@ -12,6 +12,7 @@ import 'package:stacked_services/src/dialog/dialog_service.dart';
 import 'package:stacked_services/src/navigation/navigation_service.dart';
 import 'package:stacked_shared/stacked_shared.dart';
 
+import '../services/api_service.dart';
 import '../services/user_service.dart';
 import 'permission_service.dart';
 
@@ -34,4 +35,5 @@ Future<void> setupLocator({
   locator.registerSingleton(sharedPreferences);
 
   locator.registerLazySingleton(() => UserService());
+  locator.registerLazySingleton(() => ApiService.init());
 }

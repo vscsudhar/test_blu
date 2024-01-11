@@ -11,6 +11,8 @@ import 'package:test_blu/ui/views/data_view/data_view_view.dart';
 import 'package:test_blu/ui/views/weight/weight_view.dart';
 import 'package:test_blu/ui/views/locatio_id/locatio_id_view.dart';
 import 'package:test_blu/ui/views/login/login_view.dart';
+import 'package:test_blu/services/api_service.dart';
+import 'package:test_blu/ui/views/thermal_print/thermal_print_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -22,6 +24,7 @@ import 'package:test_blu/ui/views/login/login_view.dart';
     MaterialRoute(page: WeightView),
     MaterialRoute(page: LocatioIdView),
     MaterialRoute(page: LoginView),
+    MaterialRoute(page: ThermalPrintView),
 // @stacked-route
   ],
   dependencies: [
@@ -34,6 +37,7 @@ import 'package:test_blu/ui/views/login/login_view.dart';
         presolveUsing: SharedPreferences.getInstance),
 
     LazySingleton(classType: UserService),
+    LazySingleton(classType: ApiService, resolveUsing: ApiService.init),
 // @stacked-service
   ],
   bottomsheets: [

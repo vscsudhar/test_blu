@@ -5,5 +5,5 @@ enum DialogType {
   fullScreenSuccess,
   fullScreenFailure,
   imagePicker,
-  message,
+  message, custom, customred, success,
 }

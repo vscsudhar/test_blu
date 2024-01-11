@@ -1,5 +1,3 @@
-
-import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:test_blu/app/app.locator.dart';
@@ -7,7 +5,6 @@ import 'package:test_blu/core/enum/dialog_type.dart';
 import 'package:test_blu/core/mixin.dart';
 import 'package:test_blu/core/model/users_data_model.dart';
 import 'package:test_blu/services/user_service.dart';
-import 'package:test_blu/ui/views/home/home_view.dart';
 
 class LoginViewModel extends BaseViewModel with NavigationMixin {
   LoginViewModel();
@@ -46,6 +43,8 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
     }
   }
 
+
+
   void setUserName(String userName) {
     _userName = userName;
     notifyListeners();
@@ -56,17 +55,12 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
-   void goBack(context) {
+  void goBack(context) {
     notifyListeners();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const HomeView(),
-      ),
-    );
+    goToBack();
   }
 
   void showErrDialog(String message) {
-    _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
+    _dialogService.showCustomDialog(variant: DialogType.custom, title: "Message", description: message);
   }
 }

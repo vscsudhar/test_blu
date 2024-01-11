@@ -3,6 +3,7 @@ import 'package:mockito/mockito.dart';
 import 'package:test_blu/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:test_blu/services/user_service.dart';
+import 'package:test_blu/services/api_service.dart';
 // @stacked-import
 
 import 'test_helpers.mocks.dart';
@@ -12,6 +13,7 @@ import 'test_helpers.mocks.dart';
   MockSpec<BottomSheetService>(onMissingStub: OnMissingStub.returnDefault),
   MockSpec<DialogService>(onMissingStub: OnMissingStub.returnDefault),
   MockSpec<UserService>(onMissingStub: OnMissingStub.returnDefault),
+  MockSpec<ApiService>(onMissingStub: OnMissingStub.returnDefault),
 // @stacked-mock-spec
 ])
 void registerServices() {
@@ -19,6 +21,7 @@ void registerServices() {
   getAndRegisterBottomSheetService();
   getAndRegisterDialogService();
   getAndRegisterUserService();
+  getAndRegisterApiService();
 // @stacked-mock-register
 }
 
@@ -76,6 +79,13 @@ MockUserService getAndRegisterUserService() {
   _removeRegistrationIfExists<UserService>();
   final service = MockUserService();
   locator.registerSingleton<UserService>(service);
+  return service;
+}
+
+MockApiService getAndRegisterApiService() {
+  _removeRegistrationIfExists<ApiService>();
+  final service = MockApiService();
+  locator.registerSingleton<ApiService>(service);
   return service;
 }
 // @stacked-mock-create

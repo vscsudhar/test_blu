@@ -27,7 +27,7 @@ class Box extends StatelessWidget {
     return InkWell(
       canRequestFocus: false,
       focusColor: Colors.red,
-      autofocus: true,
+      // autofocus: true,
       onTap: onTap,
       child: Stack(
         children: [

@@ -72,4 +72,6 @@ class PermissionService {
     );
     // if (dialogResponse?.confirmed ?? false) openAppSettings();
   }
+
+  void requestLocationPermissions() {}
 }

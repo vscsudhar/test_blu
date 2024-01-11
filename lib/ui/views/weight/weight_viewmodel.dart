@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial_ble/flutter_bluetooth_serial_ble.dart';
 import 'package:intl/intl.dart';
@@ -16,16 +15,22 @@ import 'package:test_blu/core/model/user.model.dart';
 import 'package:test_blu/services/user_service.dart';
 import 'package:test_blu/ui/views/home/home_view.dart';
 import 'package:flutter/services.dart';
+import 'package:usb_serial/usb_serial.dart';
 
 class WeightViewModel extends BaseViewModel with NavigationMixin {
-  WeightViewModel() {
+  WeightViewModel(this._isPrintButtonVisible) {
     init();
-    // ServicesBinding.instance.keyboard.addHandler(onKey as KeyEventCallback);
   }
 
-  init() {
+  init() async {
     toggleBluetoothConnection();
+    if (isPrintButtonVisible != false) {
+      await connectToPrinter();
+    }
   }
+
+  bool? _isPrintButtonVisible;
+  bool? _isBluetoothConnected = false;
 
   final _userService = UserService();
   final _dialogService = locator<DialogService>();
@@ -43,45 +48,56 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   DateTime now = DateTime.now();
   final String _address = '00:22:09:01:4C:30';
   String? _weightData;
-  String? get locationId => _sharedPreference.getString('locationId') ?? 'Malumachampatti';
+  String? get locationId => _sharedPreference.getString('locationId') ?? '01';
+  String? get weightDevice => _sharedPreference.getString('weightDevice') ?? '';
+  String? get printerDevice => _sharedPreference.getString('printerDevice') ?? '';
+  String? get printerDeviceName => _sharedPreference.getString('printerName') ?? '';
 
   TextInputType? keyboardType;
   // final _controller = TextEditingController();
   // TextEditingController? get controller => _controller;
 
   BluetoothConnection? _connection;
+  BluetoothConnection? _printerConnection;
+  //UUID=c8d1e6e6-dcd1-44b6-a923-35b4b1196a5a
 
   String? get name => _name;
   String get formattedTime => DateFormat.jm().format(now);
+  String get formattedTimeOnly => DateFormat('h:mm a').format(now);
   String get session => DateFormat('a').format(now);
   String get date => DateFormat('dd-MM-yyyy').format(now);
   String? get customerId => _customerId;
-  String get address => _address;
+  String? get address => weightDevice;
   double lastvalue = 0;
+
+  BluetoothConnection? get connection => _connection;
+  BluetoothConnection? get printerConnection => _printerConnection;
+  bool? get isPrintButtonVisible => _isPrintButtonVisible;
+  bool isConnected = false;
 
   String? get weightData => _weightData;
 
-  bool isBluetoothConnected = false;
-  bool? _isPaused;
-  bool get isPaused => _isPaused = false;
+  bool? get isBluetoothConnected => _isBluetoothConnected;
   bool? isButtonEnabled = true;
 
   final FocusNode focusNode = FocusNode();
   final PermissionService _permissionService = locator<PermissionService>();
 
 // Function to toggle the Bluetooth connection state
-  void toggleBluetoothConnection() async {
-    // await _permissionService.requestBlePermission();
-    if (isBluetoothConnected) {
+  Future<void> toggleBluetoothConnection() async {
+    final Stopwatch stopwatch = Stopwatch()..start();
+
+    if (isBluetoothConnected!) {
       // If already connected, disconnect
       _connection?.finish();
       print('Disconnecting by user');
     } else {
       // If not connected, establish a new connection
+      stopwatch.reset();
       _connection = await BluetoothConnection.toAddress(address);
 
       _connection?.input?.listen((Uint8List data) {
-        if (isBluetoothConnected) {
+        if (isBluetoothConnected!) {
           String decodedData = utf8.decode(data);
           print('Data incoming: $decodedData');
 
@@ -90,34 +106,34 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
           List<double> numericValues1 = extractFirstDouble(decodedData);
           print('Data : $numericValues');
 
-          if (numericValues.isNotEmpty && numericValues1.length > 1 && numericValues[0] == numericValues1[1]) {
-            _weightData = numericValues[0].toString();
-            // Add each numeric value to the stream
-            for (double value in numericValues) {
-              _dataStreamController.add(value);
-              // _weightData = value.toString();
-            }
+          // if (numericValues.isNotEmpty && numericValues1.length > 1&& numericValues[0] == numericValues1[0])
+          // {
+          // _weightData = numericValues[0].toString();
+          // Add each numeric value to the stream
+          for (double value in numericValues) {
+            _dataStreamController.add(value);
+            _weightData = value.toString();
           }
+          // }
 
           _connection?.output.add(data); // Sending data
 
           if (decodedData.contains('!')) {
             _connection?.finish(); // Closing connection
             print('Disconnecting by local host');
-            isBluetoothConnected = false;
+            _isBluetoothConnected = false;
           }
         }
       }).onDone(() {
         print('Disconnected by remote request');
-        isBluetoothConnected = false;
+        _isBluetoothConnected = false;
         _dataStreamController.add(0.0);
       });
 
       print('Connecting by user');
-      isBluetoothConnected = true;
+      _isBluetoothConnected = true;
     }
     // startDataStream();
-
     notifyListeners();
   }
 
@@ -158,16 +174,14 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     var user = User();
     user.time = now.toIso8601String(); // formattedTime;
     user.session = session;
-    user.customerId = customerId!;
+    user.customerId = customerId! ?? '123';
     user.dateTime = date;
     user.center = locationId;
-    user.weight = weightData.toString();
+    user.weight = weightData.toString() ?? '3.00';
     var result = await _userService.saveUser(user);
     isButtonEnabled = true;
-    // pauseDataStream();
+    await sendPrintCommands();
     notifyListeners();
-
-    // showErrDialog('${weightData.toString()} Liter is Recived from $customerId');
   }
 
   void setCustomerId(String customerId) {
@@ -179,57 +193,139 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
   }
 
-  void printd() async {
-    // final profile = await CapabilityProfile.load();
-
-    // final printer = NetworkPrinter(PaperSize.mm80, profile);
-
-    // printer.text('Hello, World!', styles: const PosStyles(align: PosAlign.center, bold: true));
-
-    // // Add more content or styling as needed.
-
-    // printer.cut();
-    // printer.disconnect();
-  }
-
-// Add more content or styling as needed.
-
   void goBack(context) {
     disconnectBluetooth();
+    disconnectPrinter();
     notifyListeners();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const HomeView(),
-      ),
-    );
+    willpop(context);
   }
 
   void disconnectBluetooth() {
-    if (isBluetoothConnected) {
+    notifyListeners();
+    if (isBluetoothConnected!) {
       _connection?.finish();
+      dataStreamController.close();
+      _connection = null;
       print('Disconnecting by dispose');
-      isBluetoothConnected = false;
+      _isBluetoothConnected = false;
     }
   }
 
-  void pauseDataStream() {
-    dataStreamSubscription?.pause();
-  }
-
-  void resumeDataStream() {
-    dataStreamSubscription?.resume();
-  }
-
-  @override
-  void dispose() {
-    dataStreamController.close();
-    dataStreamSubscription?.cancel();
-  }
-
-  void handleSpaceBar() {
+  Future<void> disconnectPrinter() async {
+    await _printerConnection?.close();
     notifyListeners();
-    focusNode.requestFocus();
+    _printerConnection = null;
+    _isPrintButtonVisible = false;
+
+    print('Disconnected from the printer.');
+  }
+
+  Future<void> connectToPrinter() async {
+    String? staticDeviceName = printerDeviceName;
+    String? staticDeviceAddress = printerDevice;
+
+    BluetoothDevice? selectedDevice;
+    List<BluetoothDevice> devices = await FlutterBluetoothSerial.instance.getBondedDevices();
+
+    for (BluetoothDevice device in devices) {
+      if (device.name == staticDeviceName || device.address == staticDeviceAddress) {
+        selectedDevice = device;
+        break;
+      }
+    }
+
+    if (selectedDevice != null) {
+      BluetoothConnection.toAddress(selectedDevice.address).then((BluetoothConnection newConnection) {
+        notifyListeners();
+        _printerConnection = newConnection;
+        _isPrintButtonVisible = true;
+        print('Connected to the printer.');
+      }).catchError((dynamic error) {
+        print('Error connecting to printer: $error');
+      });
+    } else {
+      print('Printer not found in the list of bonded devices.');
+    }
+  }
+
+  String generateFontSizeCommand(int size) {
+    String fontSizeCommand = '\x1B\x21'; // ESC !
+
+    fontSizeCommand += String.fromCharCode(size);
+
+    return fontSizeCommand;
+  }
+
+  String header2 = 'Cowma Center';
+  String subHeader2 = 'collection';
+
+  Future<void> sendPrintCommands() async {
+    String header1 = generateFontSizeCommand(20);
+    String subheader1 = generateFontSizeCommand(16);
+    String all = generateFontSizeCommand(12);
+    int spacesForAlignment = 12;
+    int spacesForAlignment1 = 6;
+
+    String spaces = ' ' * spacesForAlignment;
+    String spaces1 = ' ' * spacesForAlignment1;
+
+    String header = '$header1$header2-$locationId';
+    String subheader = '$subheader1$customerId';
+    String dateSession = '$all$date $formattedTimeOnly';
+    String weight1 = '$all$spaces$weightData';
+    String customerId1 = '$all${'Member Code:$subheader$all$spaces1 COWMILK'}';
+
+    String centerCommand = '\x1B\x61\x01';
+
+    String printCommand = '$centerCommand$header\n............................\n$customerId1\n\n$dateSession\n\nWeight:$weight1\n\n$centerCommand${'Thank you'}\n\n\n';
+
+    _printerConnection!.output.add(Uint8List.fromList(printCommand.codeUnits));
+    await _printerConnection!.output.allSent;
+    await Future.delayed(const Duration(seconds: 2));
+    print('Print command sent to the printer.');
+  }
+
+  Future<void> connectToUSBPrinter() async {
+    List<UsbDevice> devices = await UsbSerial.listDevices();
+
+    if (devices.isEmpty) {
+      print('No USB devices found.');
+      return;
+    }
+
+    UsbPort? port = await devices[1].create();
+
+    if (await port!.open()) {
+      print('Connected to USB Printer');
+
+      String textToPrint = "Hello, Printer!\n";
+      List<int> data = utf8.encode(textToPrint);
+
+      port.write(Uint8List.fromList(data));
+
+      await port.close();
+    } else {
+      print('Failed to connect to USB Printer');
+    }
+  }
+
+  void willpop(context) {
+    notifyListeners();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeView()));
+  }
+
+  List<BluetoothDevice> devices = [];
+  Future<void> startDiscovery() async {
+    try {
+      FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
+        notifyListeners();
+        if (printerDevice!.contains(result.device.address)) {
+          _isPrintButtonVisible = true;
+        }
+      });
+    } catch (ex) {
+      print('Error starting discovery: $ex');
+    }
   }
 }
 // init() async {

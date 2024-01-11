@@ -21,6 +21,7 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   final _userService = UserService();
   final _sharedPreference = locator<SharedPreferences>();
 
+
   final now = DateTime.now();
   DateTime? _fromDate;
   DateTime get fromDate => _fromDate ?? DateTime.now(); //DateTime(now.year, now.month, 1);
@@ -32,7 +33,7 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   String? _selectedValue;
   String? get selectedValue => _selectedValue ?? session;
   String? _file;
-  String? get locationId => _sharedPreference.getString('locationId') ?? "MalumachamPatti";
+  String? get locationId => _sharedPreference.getString('locationId') ?? "01";
 
   List<User> get userList => _userList ?? [];
 

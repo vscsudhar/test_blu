@@ -10,7 +10,7 @@ class UserData {
     mapping['dateTime'] = dateTime;
     mapping['userName'] = userName!;
     mapping['password'] = password!;
-  
+
     return mapping;
   }
 }

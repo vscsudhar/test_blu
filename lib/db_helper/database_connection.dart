@@ -21,5 +21,4 @@ class DatabaseConnection {
         "CREATE TABLE user (id INTEGER PRIMARY KEY, dateTime TEXT, userName TEXT, password TEXT)";
     await database.execute(sqlData);
   }
-  }
- 
+}

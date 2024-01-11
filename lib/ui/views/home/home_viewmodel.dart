@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_serial_ble/flutter_bluetooth_serial_ble.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_blu/app/app.locator.dart';
 import 'package:test_blu/app/permission_service.dart';
 import 'package:test_blu/core/mixin.dart';
 import 'package:stacked/stacked.dart';
-import 'package:thermal_printer/thermal_printer.dart';
 
 class HomeViewModel extends BaseViewModel with NavigationMixin {
   HomeViewModel() {
     _permissionService.requestBlePermission();
+    startDiscovery();
   }
 
-  var printerManager = PrinterManager.instance;
-
   final PermissionService _permissionService = locator<PermissionService>();
+  final _sharedPreference = locator<SharedPreferences>();
 
   final controller = TextEditingController();
 
   final FocusNode focusNode = FocusNode();
 
+  bool? isPrintButtonVisible = false;
+
+  String? get printerDevice => _sharedPreference.getString('printerDevice') ?? '';
+  String? get printerDeviceName => _sharedPreference.getString('printerName') ?? '';
+  String? get weightDevice => _sharedPreference.getString('weightDevice') ?? '';
+
+  BluetoothConnection? _printerConnection;
+  BluetoothConnection? get printerConnection => _printerConnection;
+
+  List<BluetoothDevice> devices = [];
+
   void weightPage() {
-    goToWeight();
+    goToWeight(isPrintButtonVisible!);
     notifyListeners();
   }
 
@@ -38,34 +50,16 @@ class HomeViewModel extends BaseViewModel with NavigationMixin {
     notifyListeners();
   }
 
-  void scan() {
-    var devices = [];
-    scan(PrinterType type, {bool isBle = false}) {
-      // Find printers
-      PrinterManager.instance.discovery(type: type, isBle: isBle).listen((device) {
-        devices.add(device);
+  Future<void> startDiscovery() async {
+    try {
+      FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
+        notifyListeners();
+        if (printerDevice!.contains(result.device.address)) {
+          isPrintButtonVisible = true;
+        }
       });
-    }
-  }
-
-  _sendBytesToPrint(List<int> bytes, PrinterType type) async {
-    PrinterManager.instance.send(type: type, bytes: bytes);
-  }
-
-  _connectDevice(PrinterDevice selectedPrinter, PrinterType type, {bool reconnect = false, bool isBle = false, String? ipAddress}) async {
-    switch (type) {
-      // only windows and android
-      case PrinterType.usb:
-        await PrinterManager.instance.connect(type: type, model: UsbPrinterInput(name: selectedPrinter.name, productId: selectedPrinter.productId, vendorId: selectedPrinter.vendorId));
-        break;
-      // only iOS and android
-      case PrinterType.bluetooth:
-        await PrinterManager.instance.connect(type: type, model: BluetoothPrinterInput(name: selectedPrinter.name, address: selectedPrinter.address!, isBle: isBle, autoConnect: reconnect));
-        break;
-      case PrinterType.network:
-        await PrinterManager.instance.connect(type: type, model: TcpPrinterInput(ipAddress: ipAddress ?? selectedPrinter.address!));
-        break;
-      default:
+    } catch (ex) {
+      print('Error starting discovery: $ex');
     }
   }
 }
