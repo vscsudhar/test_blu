@@ -23,31 +23,32 @@ class WeightView extends StackedView<WeightViewModel> {
     Widget? child,
   ) {
     // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: () async {
-        viewModel.disconnectBluetooth();
-        viewModel.disconnectPrinter();
-        return true;
-      },
-      child: Focus(
-          focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
-          autofocus: false,
-          onKey: (node, event) {
-            if (event.logicalKey == LogicalKeyboardKey.escape) {
-              viewModel.goBack(context);
-              return KeyEventResult.handled;
-            } else if (event.logicalKey == LogicalKeyboardKey.f2) {
-              viewModel.focusNode.requestFocus();
-              return KeyEventResult.handled;
-            }
+    return !viewModel.isBusy
+        ? WillPopScope(
+            onWillPop: () async {
+              viewModel.disconnectBluetooth();
+              viewModel.disconnectPrinter();
+              return true;
+            },
+            child: Focus(
+                focusNode: FocusNode(canRequestFocus: true, descendantsAreFocusable: true),
+                autofocus: false,
+                onKey: (node, event) {
+                  if (event.logicalKey == LogicalKeyboardKey.escape) {
+                    viewModel.goBack();
+                    return KeyEventResult.handled;
+                  } else if (event.logicalKey == LogicalKeyboardKey.f2) {
+                    viewModel.focusNode.requestFocus();
+                    return KeyEventResult.handled;
+                  }
 
-            return KeyEventResult.ignored;
-          },
-          child: !viewModel.isBusy
-              ? Scaffold(
+                  return KeyEventResult.ignored;
+                },
+                child: Scaffold(
                   appBar: AppBar(
                     backgroundColor: appwhite1,
-                    // leading: InkWell(onTap: () => viewModel.goBack(context), child: const Icon(Icons.arrow_back)),
+                    automaticallyImplyLeading: true,
+                    leading: InkWell(onTap: () => viewModel.goBack(), child: const Icon(Icons.arrow_back)),
                     title: Text('Center -${viewModel.locationId.toString()}'),
                     centerTitle: true,
                     actions: [
@@ -61,7 +62,7 @@ class WeightView extends StackedView<WeightViewModel> {
                         ),
                         onPressed: () {
                           viewModel.toggleBluetoothConnection();
-                          viewModel.focusNode.requestFocus();
+                          // viewModel.focusNode.requestFocus();
                         },
                         child: Text(viewModel.isBluetoothConnected! ? 'Disconnect' : 'Connect'),
                       ),
@@ -131,7 +132,7 @@ class WeightView extends StackedView<WeightViewModel> {
                                                         _submithand(viewModel);
                                                       }
                                                     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-                                                      viewModel.goBack(context);
+                                                      viewModel.goBack();
                                                     } else if (event.logicalKey == LogicalKeyboardKey.f1) {
                                                       if (viewModel.isBluetoothConnected!) {
                                                       } else {
@@ -168,6 +169,7 @@ class WeightView extends StackedView<WeightViewModel> {
                                             ],
                                           ),
                                         ),
+                                      Container(height: 40, width: 100, color: Colors.amber, child: Text(viewModel.isPrintButtonVisible.toString())),
                                     ],
                                   );
                                 } else {
@@ -183,11 +185,11 @@ class WeightView extends StackedView<WeightViewModel> {
                       ),
                     ),
                   ),
-                )
-              : const CircularProgressIndicator(
-                  color: Colors.pink,
                 )),
-    );
+          )
+        : const CircularProgressIndicator(
+            color: Colors.pink,
+          );
   }
 
   void _submithand(WeightViewModel viewModel) {

@@ -13,7 +13,6 @@ import 'package:test_blu/core/enum/dialog_type.dart';
 import 'package:test_blu/core/mixin.dart';
 import 'package:test_blu/core/model/user.model.dart';
 import 'package:test_blu/services/user_service.dart';
-import 'package:test_blu/ui/views/home/home_view.dart';
 import 'package:flutter/services.dart';
 import 'package:usb_serial/usb_serial.dart';
 
@@ -27,6 +26,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     if (isPrintButtonVisible != false) {
       await connectToPrinter();
     }
+    notifyListeners();
   }
 
   bool? _isPrintButtonVisible;
@@ -193,11 +193,11 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
   }
 
-  void goBack(context) {
+  void goBack() {
     disconnectBluetooth();
     disconnectPrinter();
     notifyListeners();
-    willpop(context);
+    willpop();
   }
 
   void disconnectBluetooth() {
@@ -309,9 +309,10 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     }
   }
 
-  void willpop(context) {
+  void willpop() {
     notifyListeners();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeView()));
+    goToHome();
+    // Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeView()));
   }
 
   List<BluetoothDevice> devices = [];

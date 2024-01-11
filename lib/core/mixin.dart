@@ -8,7 +8,7 @@ mixin NavigationMixin {
   void goToHome() => _navigationService.clearStackAndShow(Routes.homeView);
   void goToTest() => _navigationService.navigateTo(Routes.testPageView);
   void goToDataView() => _navigationService.navigateTo(Routes.dataViewView);
-  void goToWeight(bool isPrintButtonVisible) => _navigationService.navigateTo(Routes.weightView, arguments: WeightViewArguments(isPrintButtonVisible: isPrintButtonVisible));
+  void goToWeight(bool isPrintButtonVisible) => _navigationService.clearStackAndShow(Routes.weightView, arguments: WeightViewArguments(isPrintButtonVisible: isPrintButtonVisible));
   void goToLocation() => _navigationService.navigateTo(Routes.locatioIdView);
   void goToLogin() => _navigationService.navigateTo(Routes.loginView);
   void goToThermalPrint() => _navigationService.navigateTo(Routes.thermalPrintView);

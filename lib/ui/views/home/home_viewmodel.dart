@@ -9,6 +9,12 @@ import 'package:stacked/stacked.dart';
 class HomeViewModel extends BaseViewModel with NavigationMixin {
   HomeViewModel() {
     _permissionService.requestBlePermission();
+    notifyListeners();
+    print('object');
+    init();
+  }
+
+  init() {
     startDiscovery();
   }
 
