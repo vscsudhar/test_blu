@@ -12,5 +12,5 @@ mixin NavigationMixin {
   void goToLocation() => _navigationService.navigateTo(Routes.locatioIdView);
   void goToLogin() => _navigationService.navigateTo(Routes.loginView);
   void goToThermalPrint() => _navigationService.navigateTo(Routes.thermalPrintView);
-  void goToBack() => _navigationService.popRepeated(1);
+  void goToBack() => _navigationService.popRepeated(0);
 }

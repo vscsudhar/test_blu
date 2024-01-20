@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,8 +18,6 @@ import 'package:test_blu/core/model/fileUpload_model.dart';
 import 'package:test_blu/core/model/user.model.dart';
 import 'package:test_blu/services/api_service.dart';
 import 'package:test_blu/services/user_service.dart';
-import 'package:test_blu/ui/common/widgets/dialogs/custom_dialog.dart';
-import 'package:test_blu/ui/views/home/home_view.dart';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:xml/xml.dart' as xml;
 
@@ -36,6 +34,9 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
 
   FileUploadResponse? _fileUploadResponse;
   FileUploadResponse? get fileUploadResponse => _fileUploadResponse;
+
+  bool? _isEnable = false;
+  bool? get isEnable => _isEnable;
 
   final focusNode = FocusNode();
   DateTime? date = DateTime.now();
@@ -100,6 +101,7 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
     print(csvData);
     notifyListeners();
     // xmlData = await convertCsvToXml(csvData!);
+
     await writeToInternalStorage(context);
 
     await copyToUsbPendrive();
@@ -191,6 +193,7 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
         print(data.toString());
       }).catchError((err) {
         showErrDialog('something went Wrong Please check your internet');
+        _isEnable = false;
       });
 
       print(response.data);
@@ -267,7 +270,8 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> submitData(context) async {
-    await getDate(context);
+    await runBusyFuture(getDate(context));
+    _isEnable = true;
     print(csvData);
     notifyListeners();
   }
@@ -301,9 +305,9 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
     }
   }
 
-  void goBack() {
+  void goBack(context) {
     notifyListeners();
-    goToBack();
+    goToHome();
   }
 
   void dialog1(context) {
@@ -323,32 +327,46 @@ class TestPageViewModel extends BaseViewModel with NavigationMixin {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Message',
-            textAlign: TextAlign.center,
-          ),
-          content: const Text(
-            'File Already Exist',
-            textAlign: TextAlign.center,
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                goToBack();
-              },
-              child: const Text('Cancel'),
+        return Focus(
+          autofocus: true,
+          focusNode: focusNode,
+          onKey: (node, event) {
+            if (event.logicalKey == LogicalKeyboardKey.enter) {
+              notifyListeners();
+              sendFormData1();
+              Navigator.pop(context);
+              return KeyEventResult.handled;
+            }
+
+            return KeyEventResult.ignored;
+          },
+          child: AlertDialog(
+            title: const Text(
+              'Message',
+              textAlign: TextAlign.center,
             ),
-            TextButton(
-              onPressed: () {
-                // Handle the "OK" button press
-                notifyListeners();
-                sendFormData1();
-                goToBack();
-              },
-              child: const Text('OK'),
+            content: const Text(
+              'File Already Exist',
+              textAlign: TextAlign.center,
             ),
-          ],
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Handle the "OK" button press
+                  notifyListeners();
+                  sendFormData1();
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
       },
     );

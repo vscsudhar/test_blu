@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial_ble/flutter_bluetooth_serial_ble.dart';
@@ -116,16 +118,19 @@ class HomeView extends StackedView<HomeViewModel> {
             //     return KeyEventResult.ignored;
             //   },
             //   child:
-            Box(
-                onTap: () => viewModel.startDiscovery(),
-                boxColor: appChambray,
-                margin: zeroPadding,
-                padding: defaultPadding12,
-                child: Text(
-                  'Scanner = ${viewModel.isPrintButtonVisible.toString()}',
-                  style: fontFamilyBold.size18,
-                  textAlign: TextAlign.center,
-                )),
+            // Box(
+            //     onTap: () {
+            //       viewModel.startDiscovery();
+            //       viewModel.notifyListeners();
+            //     },
+            //     boxColor: appChambray,
+            //     margin: zeroPadding,
+            //     padding: defaultPadding12,
+            //     child: Text(
+            //       'Scanner = ${viewModel.isPrintButtonVisible.toString()}',
+            //       style: fontFamilyBold.size18,
+            //       textAlign: TextAlign.center,
+            //     )),
             // ),
           ]),
         ),
@@ -141,6 +146,7 @@ class HomeView extends StackedView<HomeViewModel> {
 
   @override
   void onDispose(HomeViewModel viewModel) async {
+    log('HomeView onDispose');
     await FlutterBluetoothSerial.instance.cancelDiscovery();
     super.onDispose(viewModel);
   }

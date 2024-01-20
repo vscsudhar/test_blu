@@ -22,11 +22,10 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   }
 
   init() async {
-    toggleBluetoothConnection();
+    await toggleBluetoothConnection();
     if (isPrintButtonVisible != false) {
       await connectToPrinter();
     }
-    notifyListeners();
   }
 
   bool? _isPrintButtonVisible;
@@ -36,9 +35,9 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   final _dialogService = locator<DialogService>();
   final _sharedPreference = locator<SharedPreferences>();
 
-  final StreamController<double> _dataStreamController = StreamController<double>();
-  StreamController<double> get dataStreamController => _dataStreamController;
-  StreamSubscription<double>? dataStreamSubscription;
+  // final StreamController<double> _dataStreamController = StreamController<double>();
+  // StreamController<double> get dataStreamController => _dataStreamController;
+  // StreamSubscription<double>? dataStreamSubscription;
 
   final TextEditingController? controller = TextEditingController(text: '');
 
@@ -75,7 +74,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   bool? get isPrintButtonVisible => _isPrintButtonVisible;
   bool isConnected = false;
 
-  String? get weightData => _weightData;
+  String get weightData => _weightData ?? '0.0';
 
   bool? get isBluetoothConnected => _isBluetoothConnected;
   bool? isButtonEnabled = true;
@@ -85,49 +84,51 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
 
 // Function to toggle the Bluetooth connection state
   Future<void> toggleBluetoothConnection() async {
-    final Stopwatch stopwatch = Stopwatch()..start();
+    if (_connection?.isConnected ?? false) {
+      // await _dataStreamController.close();
+      await runBusyFuture(_connection!.finish());
 
-    if (isBluetoothConnected!) {
-      // If already connected, disconnect
-      _connection?.finish();
-      print('Disconnecting by user');
+      print('Disconnected by user');
     } else {
       // If not connected, establish a new connection
-      stopwatch.reset();
       _connection = await BluetoothConnection.toAddress(address);
 
       _connection?.input?.listen((Uint8List data) {
-        if (isBluetoothConnected!) {
-          String decodedData = utf8.decode(data);
-          print('Data incoming: $decodedData');
+        String decodedData = utf8.decode(data);
+        print('Data incoming: $decodedData');
 
-          // Extract only numeric values from the data
-          List<double> numericValues = extractFirstDouble(decodedData);
-          List<double> numericValues1 = extractFirstDouble(decodedData);
-          print('Data : $numericValues');
+        // Extract only numeric values from the data
+        List<double> numericValues = extractFirstDouble(decodedData);
+        List<double> numericValues1 = extractFirstDouble(decodedData);
+        print('Data : $numericValues');
 
-          // if (numericValues.isNotEmpty && numericValues1.length > 1&& numericValues[0] == numericValues1[0])
-          // {
-          // _weightData = numericValues[0].toString();
-          // Add each numeric value to the stream
-          for (double value in numericValues) {
-            _dataStreamController.add(value);
-            _weightData = value.toString();
+        // if (numericValues.isNotEmpty && numericValues1.length > 1&& numericValues[0] == numericValues1[0])
+        // {
+        // _weightData = numericValues[0].toString();
+        // Add each numeric value to the stream
+        for (double value in numericValues) {
+          // _dataStreamController.add(value);
+          _weightData = value.toString();
+          if (_weightData == '0.0') {
+            isButtonEnabled = true;
           }
-          // }
+          notifyListeners();
+        }
+        // }
 
-          _connection?.output.add(data); // Sending data
+        _connection?.output.add(data); // Sending data
 
-          if (decodedData.contains('!')) {
-            _connection?.finish(); // Closing connection
-            print('Disconnecting by local host');
-            _isBluetoothConnected = false;
-          }
+        if (decodedData.contains('!')) {
+          _connection?.finish(); // Closing connection
+          print('Disconnecting by local host');
+          _isBluetoothConnected = false;
         }
       }).onDone(() {
         print('Disconnected by remote request');
         _isBluetoothConnected = false;
-        _dataStreamController.add(0.0);
+        _weightData = '0.0';
+        notifyListeners();
+        // _dataStreamController.add(0.0);
       });
 
       print('Connecting by user');
@@ -160,7 +161,7 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
   String? get data => _sharedPreference.getString('weightData');
 
   void calculateWeight() {
-    _sharedPreference.setString('weightData', weightData!);
+    _sharedPreference.setString('weightData', weightData);
   }
 
   Future<void> clearValueFromSharedPreferences() async {
@@ -179,9 +180,9 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     user.center = locationId;
     user.weight = weightData.toString() ?? '3.00';
     var result = await _userService.saveUser(user);
-    isButtonEnabled = true;
-    await sendPrintCommands();
+    isButtonEnabled = false;
     notifyListeners();
+    await sendPrintCommands();
   }
 
   void setCustomerId(String customerId) {
@@ -193,30 +194,38 @@ class WeightViewModel extends BaseViewModel with NavigationMixin {
     _dialogService.showCustomDialog(variant: DialogType.error, title: "Message", description: message);
   }
 
-  void goBack() {
-    disconnectBluetooth();
-    disconnectPrinter();
-    notifyListeners();
-    willpop();
+  Future<void> disconnectDevices() async {
+    try {
+      if (connection?.isConnected ?? false) {
+        await connection?.finish().then((value) {
+          _connection = null;
+          _isBluetoothConnected = false;
+        });
+      }
+
+      if (printerConnection?.isConnected ?? false) {
+        await printerConnection?.finish().then((value) {
+          _printerConnection = null;
+          _isPrintButtonVisible = false;
+        });
+      }
+    } catch (e) {
+      print('Error closing Bluetooth connections: $e');
+    }
   }
 
-  void disconnectBluetooth() {
-    notifyListeners();
-    if (isBluetoothConnected!) {
-      _connection?.finish();
-      dataStreamController.close();
+  Future<void> disconnectBluetooth() async {
+    if (isBluetoothConnected ?? false) {
       _connection = null;
       print('Disconnecting by dispose');
-      _isBluetoothConnected = false;
+      // _isBluetoothConnected = false;
     }
   }
 
   Future<void> disconnectPrinter() async {
     await _printerConnection?.close();
-    notifyListeners();
     _printerConnection = null;
     _isPrintButtonVisible = false;
-
     print('Disconnected from the printer.');
   }
 

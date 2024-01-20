@@ -36,7 +36,7 @@ class LocatioIdViewModel extends BaseViewModel with NavigationMixin {
     _printerDevice = printerDevice;
   }
 
-  void submitAction() {
+  Future<void> submitAction() async {
     notifyListeners();
     _sharedPreference.setString('locationId', _locationId.toString());
     _sharedPreference.setString('weightDevice', selectedDevice!.address.toString());
@@ -45,6 +45,11 @@ class LocatioIdViewModel extends BaseViewModel with NavigationMixin {
     print(selectedPrinter!.address);
     _sharedPreference.setString('printerName', selectedPrinter!.name.toString());
     print(selectedPrinter!.name);
+  }
+
+  void saveSubmit() async {
+    notifyListeners();
+    await runBusyFuture(submitAction());
     goToHome();
   }
 

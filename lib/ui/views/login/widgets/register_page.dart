@@ -64,7 +64,7 @@ class Register extends StackedView<LoginViewModel> {
                     if (event is RawKeyDownEvent) {
                       if (event.logicalKey == LogicalKeyboardKey.escape) {
                         viewModel.goBack(context);
-                      } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      } else if (event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter ) {
                         _submithand(viewModel);
                       }
                     }

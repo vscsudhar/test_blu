@@ -168,7 +168,7 @@ class LocatioIdView extends StackedView<LocatioIdViewModel> {
   void _submithand(LocatioIdViewModel viewModel) {
     if (formKey.currentState?.validate() ?? false) {
       formKey.currentState?.save();
-      viewModel.submitAction();
+      viewModel.saveSubmit();
       formKey.currentState?.reset();
       FocusNode().requestFocus();
     }

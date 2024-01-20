@@ -31,7 +31,7 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
   }
 
   Future<void> loginData() async {
-    var userData = await _userService.checkUserData(userName, password);
+    var userData = await runBusyFuture(_userService.checkUserData(userName, password));
     notifyListeners();
     if (userData != null && userData.isNotEmpty) {
       print('Login successful!');
@@ -42,8 +42,6 @@ class LoginViewModel extends BaseViewModel with NavigationMixin {
       showErrDialog('Invalid credentials. Login failed.');
     }
   }
-
-
 
   void setUserName(String userName) {
     _userName = userName;

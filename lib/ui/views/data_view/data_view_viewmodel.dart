@@ -21,7 +21,6 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
   final _userService = UserService();
   final _sharedPreference = locator<SharedPreferences>();
 
-
   final now = DateTime.now();
   DateTime? _fromDate;
   DateTime get fromDate => _fromDate ?? DateTime.now(); //DateTime(now.year, now.month, 1);
@@ -171,9 +170,9 @@ class DataViewViewModel extends BaseViewModel with NavigationMixin {
     _selectedValue = value;
   }
 
-  void submitbutton() {
+  void submitbutton() async {
     notifyListeners();
-    getDateAndSessionUsers();
+    await runBusyFuture(getDateAndSessionUsers());
   }
 
   Future<void> exportTableToCSV(String filePath) async {

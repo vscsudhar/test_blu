@@ -4,19 +4,17 @@ class AnimatedCircularProgressIndicator extends StatefulWidget {
   final Color color;
   final Color backgroundColor;
 
-  AnimatedCircularProgressIndicator({
+  const AnimatedCircularProgressIndicator({
+    super.key,
     this.color = Colors.white,
     this.backgroundColor = Colors.grey,
   });
 
   @override
-  _AnimatedCircularProgressIndicatorState createState() =>
-      _AnimatedCircularProgressIndicatorState();
+  _AnimatedCircularProgressIndicatorState createState() => _AnimatedCircularProgressIndicatorState();
 }
 
-class _AnimatedCircularProgressIndicatorState
-    extends State<AnimatedCircularProgressIndicator>
-    with SingleTickerProviderStateMixin {
+class _AnimatedCircularProgressIndicatorState extends State<AnimatedCircularProgressIndicator> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
@@ -38,15 +36,19 @@ class _AnimatedCircularProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return CircularProgressIndicator(
-          value: _animation.value,
-          color: widget.color,
-          backgroundColor: widget.backgroundColor,
-        );
-      },
+    return Scaffold(
+      body: Center(
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return CircularProgressIndicator(
+              value: _animation.value,
+              color: widget.color,
+              backgroundColor: widget.backgroundColor,
+            );
+          },
+        ),
+      ),
     );
   }
 }

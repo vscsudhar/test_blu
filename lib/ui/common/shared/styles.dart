@@ -95,6 +95,10 @@ extension TextStyleHelpers on TextStyle {
   TextStyle get size30 => copyWith(fontSize: 30 * scale);
   TextStyle get size32 => copyWith(fontSize: 32 * scale);
   TextStyle get size34 => copyWith(fontSize: 34 * scale);
+  TextStyle get size60 => copyWith(fontSize: 60 * scale);
+  TextStyle get size70 => copyWith(fontSize: 70 * scale);
+  TextStyle get size80 => copyWith(fontSize: 80 * scale);
+  TextStyle get size85 => copyWith(fontSize: 85 * scale);
 
   TextStyle get color2699FB => copyWith(color: appcolor2699FB);
   TextStyle get appwhite => copyWith(color: appwhite1);
